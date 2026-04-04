@@ -54,13 +54,13 @@ export default function DashboardAI({ user }) {
   }, [])
 
   const handleSpeakClick = useCallback(() => {
-    setIsSpeaking(true)
     if (speakRef.current) {
       const summary = buildHealthSummary(user, { health_score: healthScore })
       speakRef.current(summary)
+      setIsSpeaking(true)
+      // Auto-stop speaking after 5 seconds
+      setTimeout(() => setIsSpeaking(false), 5000)
     }
-    // Auto-stop speaking after 5 seconds
-    setTimeout(() => setIsSpeaking(false), 5000)
   }, [user, healthScore])
 
   if (loading) {
