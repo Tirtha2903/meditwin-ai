@@ -43,9 +43,12 @@ export default function GeminiChat({ result, form }) {
         })
       })
       const data = await res.json()
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Server error')
+      }
       setMessages([...history, { role: 'ai', text: data.reply || 'No response.' }])
-    } catch {
-      setMessages([...history, { role: 'ai', text: 'Error contacting server.' }])
+    } catch (err) {
+      setMessages([...history, { role: 'ai', text: `Error: ${err.message}` }])
     }
     setLoading(false)
   }
