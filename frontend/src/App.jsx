@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from './supabase/client'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
+import DashboardAI from './pages/DashboardAI'
 import NewScan from './pages/NewScan'
 import History from './pages/History'
 import Navbar from './components/Navbar'
@@ -38,6 +39,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
         <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" />} />
+        <Route path="/dashboard-ai" element={user ? <DashboardAI user={user} /> : <Navigate to="/login" />} />
         <Route path="/scan" element={user ? <NewScan user={user} /> : <Navigate to="/login" />} />
         <Route path="/history" element={user ? <History user={user} /> : <Navigate to="/login" />} />
         <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />

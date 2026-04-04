@@ -13,6 +13,7 @@ export default function Navbar({ user }) {
       </div>
       <div className="nav-links">
         <Link className={`nav-link ${location.pathname==='/dashboard'?'active':''}`} to="/dashboard">Dashboard</Link>
+        <Link className={`nav-link ${location.pathname==='/dashboard-ai'?'active':''}`} to="/dashboard-ai">AI Twin</Link>
         <Link className={`nav-link ${location.pathname==='/scan'?'active':''}`} to="/scan">New Scan</Link>
         <Link className={`nav-link ${location.pathname==='/history'?'active':''}`} to="/history">History</Link>
       </div>
