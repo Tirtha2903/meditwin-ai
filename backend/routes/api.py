@@ -5,7 +5,7 @@ import requests as req
 
 api_bp = Blueprint('api', __name__)
 
-GEMINI_KEY = 'AIzaSyA63WJBx6Vvug0AFmhMSetxYYjtccs5LbU'
+GEMINI_KEY = 'AIzaSyCsXBhPCQlo7RmH6vxOUPVbMJJGCh1viQ0'
 ELEVENLABS_KEY = 'sk_08c0de3515ab66d6b6651ff161fb1a4ba2a2947134ef3e9b'
 VOICE_ID = 'sB7vwSCyX0tQmU24cW2C'
 REQUIRED = ['age','heart_rate','systolic_bp','diastolic_bp','bmi','cholesterol','glucose','smoking','diabetes','family_history']
