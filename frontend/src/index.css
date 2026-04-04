@@ -722,3 +722,175 @@ body::before {
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .navbar { padding: 12px 16px; }
 }
+
+/* ─── Particle Human Twin Card ────────────────────────────────── */
+.particle-twin-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 24px;
+}
+
+/* Top accent stripe that matches the health color */
+.particle-twin-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--health-color, var(--teal)), transparent);
+  opacity: 0.7;
+  z-index: 2;
+}
+
+/* Canvas wrapper: fixed aspect ratio so the figure always looks proportional */
+.particle-canvas-wrapper {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  max-height: 520px;
+  min-height: 320px;
+  position: relative;
+  background: radial-gradient(ellipse at center, #0a1520 0%, #050b12 100%);
+}
+
+/* Overlay info row at bottom of canvas */
+.particle-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 12px 16px;
+  background: linear-gradient(to top, rgba(5,11,18,0.92) 60%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 3;
+}
+
+.particle-twin-id {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--teal);
+  opacity: 0.7;
+}
+
+.particle-health-badge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 99px;
+  border: 1px solid currentColor;
+  opacity: 0.85;
+}
+
+/* Panel below the canvas with controls */
+.particle-controls {
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.particle-score-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.particle-score-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.particle-score-value {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.particle-score-bar {
+  height: 5px;
+  background: var(--surface-2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.particle-score-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1), background 0.8s ease;
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* The "Ask MediTwin AI" speak button */
+.speak-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 16px;
+  background: rgba(0, 245, 160, 0.08);
+  border: 1px solid rgba(0, 245, 160, 0.25);
+  border-radius: var(--radius);
+  color: var(--teal);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.speak-btn:hover:not(:disabled) {
+  background: rgba(0, 245, 160, 0.16);
+  box-shadow: 0 0 18px rgba(0, 245, 160, 0.15);
+  transform: translateY(-1px);
+}
+
+.speak-btn:active:not(:disabled) { transform: translateY(0); }
+
+.speak-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.speak-btn-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* Animated mic waveform when speaking */
+@keyframes waveBar {
+  0%, 100% { transform: scaleY(0.35); }
+  50%       { transform: scaleY(1.2); }
+}
+
+.waveform {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 14px;
+}
+
+.waveform span {
+  display: inline-block;
+  width: 3px;
+  height: 100%;
+  border-radius: 99px;
+  background: currentColor;
+  animation: waveBar 0.7s ease-in-out infinite;
+}
+.waveform span:nth-child(2) { animation-delay: 0.12s; }
+.waveform span:nth-child(3) { animation-delay: 0.24s; }
+.waveform span:nth-child(4) { animation-delay: 0.36s; }
+
+/* ─── Health zone label colours (set via JS inline var) ────────── */
+.health-zone-poor    { color: #ff2244; }
+.health-zone-average { color: #ffaa00; }
+.health-zone-good    { color: #00f5a0; }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const GEMINI_KEY = 'AIzaSyDbrkKF-dH6khh45LbfQqr47Gw04SA5M5s'
+const GEMINI_KEY = 'AIzaSyCsXBhPCQlo7RmH6vxOUPVbMJJGCh1viQ0'
 const ELEVENLABS_KEY = 'sk_08c0de3515ab66d6b6651ff161fb1a4ba2a2947134ef3e9b'
 const VOICE_ID = '21m00Tcm4TlvDq8ikWAM' // Rachel — calm, medical
 
@@ -43,9 +43,12 @@ export default function GeminiChat({ result, form }) {
         })
       })
       const data = await res.json()
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Server error')
+      }
       setMessages([...history, { role: 'ai', text: data.reply || 'No response.' }])
-    } catch {
-      setMessages([...history, { role: 'ai', text: 'Error contacting server.' }])
+    } catch (err) {
+      setMessages([...history, { role: 'ai', text: `Error: ${err.message}` }])
     }
     setLoading(false)
   }
