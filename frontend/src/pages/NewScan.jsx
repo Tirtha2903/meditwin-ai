@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../supabase/client'
-import { predictHealth } from '../api/predict'
+import { predictHealth, scanCameraVitals } from '../api/predict'
 import TwinVisual from '../components/TwinVisual'
 import ResultCard from '../components/ResultCard'
 import GeminiChat from '../components/GeminiChat'
@@ -15,6 +15,28 @@ export default function NewScan({ user }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
+  const [isScanningCamera, setIsScanningCamera] = useState(false)
+  const [scanMessage, setScanMessage] = useState('')
+
+  const handleCameraScan = async () => {
+    setIsScanningCamera(true)
+    setScanMessage('📸 Camera active. Stay still for 30 seconds...')
+    setError('')
+    try {
+      const data = await scanCameraVitals()
+      setForm(prev => ({
+        ...prev,
+        heart_rate: data.heart_rate || prev.heart_rate
+      }))
+      setScanMessage(`✅ Scan complete! Heart Rate: ${data.heart_rate} bpm (Respiration: ${data.breathing_rate} breaths/min)`)
+      setTimeout(() => setScanMessage(''), 8000)
+    } catch(err) {
+      setError(err.message)
+      setScanMessage('')
+    } finally {
+      setIsScanningCamera(false)
+    }
+  }
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value })
 
@@ -57,7 +79,20 @@ export default function NewScan({ user }) {
       <div className="scan-grid">
         {/* Left: Form */}
         <div className="panel">
-          <h2 className="panel-title"><span className="step-num">01</span> Patient Vitals</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <h2 className="panel-title" style={{ margin: 0 }}><span className="step-num">01</span> Patient Vitals</h2>
+            <button 
+              type="button" 
+              className="submit-btn" 
+              style={{ width: 'auto', padding: '6px 14px', fontSize: '0.8rem', background: '#0a2540', border: '1px solid #00f5a0', color: '#00f5a0' }}
+              onClick={handleCameraScan}
+              disabled={isScanningCamera}
+            >
+              {isScanningCamera ? '⏳ Scanning (30s)...' : '📸 Camera Scan'}
+            </button>
+          </div>
+          {scanMessage && <div className="success-box" style={{ marginBottom: 16, background: 'rgba(0, 245, 160, 0.1)', border: '1px solid rgba(0,245,160,0.3)', color: '#00f5a0' }}>{scanMessage}</div>}
+          
           <form className="input-form" onSubmit={handleSubmit}>
             <div className="form-row">
               <div className="field">

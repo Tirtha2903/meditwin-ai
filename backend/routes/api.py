@@ -2,6 +2,9 @@ from flask import Blueprint, request, jsonify, Response
 from services.twin_service import twin_service
 from google import genai
 import requests as req
+import subprocess
+import json
+import os
 
 api_bp = Blueprint('api', __name__)
 
@@ -87,3 +90,44 @@ def superplane_trigger():
     except Exception as e:
         # Don't fail if SuperPlane is unreachable
         return jsonify({'status': 'triggered_locally', 'note': str(e)})
+
+
+@api_bp.route('/scan_vitals', methods=['POST'])
+def scan_vitals():
+    try:
+        # Resolve absolute path to the local compiled scanner binary
+        # We assume backend is run in its specific folder, presage is next to it
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        scanner_path = os.path.join(base_dir, 'presage', 'build', 'vitals_scanner')
+
+        if not os.path.exists(scanner_path) and not os.path.exists(scanner_path + ".exe"):
+            return jsonify({'error': 'Scanner executable not found. Make sure it is compiled in presage/build/'}), 404
+
+        # Execute the scanner. We wait up to 60 seconds.
+        # It logs via glog, but prints the final JSON payload to stdout.
+        result = subprocess.run(
+            [scanner_path], 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=60
+        )
+
+        std_out = result.stdout.strip()
+
+        # Isolate JSON from standard output (in case of rogue log lines)
+        start_idx = std_out.find('{')
+        end_idx = std_out.rfind('}')
+        if start_idx != -1 and end_idx != -1:
+            json_str = std_out[start_idx:end_idx+1]
+            data = json.loads(json_str)
+            if "error" in data:
+                return jsonify(data), 500
+            return jsonify(data), 200
+        else:
+            return jsonify({'error': 'Failed to parse scanner output', 'raw': std_out}), 500
+
+    except subprocess.TimeoutExpired:
+        return jsonify({'error': 'Vitals scan timed out after 60 seconds. Please try again.'}), 504
+    except Exception as e:
+        return jsonify({'error': f'Scanner execution failed: {str(e)}'}), 500

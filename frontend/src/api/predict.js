@@ -21,3 +21,13 @@ export async function predictHealth(form) {
   if (!res.ok) throw new Error(data.error || 'Backend error')
   return data
 }
+
+export async function scanCameraVitals() {
+  const res = await fetch(`${BASE_URL}/scan_vitals`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || 'Camera scan failed')
+  return data
+}
