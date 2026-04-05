@@ -4,6 +4,7 @@ import { predictHealth, scanCameraVitals } from '../api/predict'
 import TwinVisual from '../components/TwinVisual'
 import ResultCard from '../components/ResultCard'
 import GeminiChat from '../components/GeminiChat'
+import PresagePanel from '../components/PresagePanel'
 
 export default function NewScan({ user }) {
   const [form, setForm] = useState({
@@ -11,6 +12,7 @@ export default function NewScan({ user }) {
     bmi:'', cholesterol:'', glucose:'', smoking:'0',
     diabetes:'0', family_history:'0'
   })
+  const [presageData, setPresageData] = useState(null)
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -40,28 +42,55 @@ export default function NewScan({ user }) {
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value })
 
+  // Called by PresagePanel when vitals arrive from Android app
+  const handlePresageReceived = (data) => {
+    setPresageData(data)
+    // Auto-fill whatever fields Presage sends
+    setForm(prev => ({
+      ...prev,
+      ...(data.heart_rate   && { heart_rate:   String(data.heart_rate) }),
+      ...(data.systolic_bp  && { systolic_bp:   String(data.systolic_bp) }),
+      ...(data.diastolic_bp && { diastolic_bp:  String(data.diastolic_bp) }),
+    }))
+  }
+
   const handleSubmit = async e => {
     e.preventDefault()
     setLoading(true); setError(''); setResult(null); setSaved(false)
     try {
-      const data = await predictHealth(form)
+      // Merge form + presage extras into one payload
+      const payload = {
+        ...form,
+        ...(presageData && {
+          breathing_rate:   presageData.breathing_rate,
+          stress_score:     presageData.stress_score,
+          focus_score:      presageData.focus_score,
+          excitement_score: presageData.excitement_score,
+          emotion:          presageData.emotion,
+          micro_expressions: presageData.micro_expressions,
+          posture:          presageData.posture,
+          activity_level:   presageData.activity_level,
+        })
+      }
+
+      const data = await predictHealth(payload)
       setResult(data)
-      // Save to Supabase
+
       await supabase.from('scans').insert({
-        user_id: user.id,
-        age: Number(form.age),
-        heart_rate: Number(form.heart_rate),
-        systolic_bp: Number(form.systolic_bp),
-        diastolic_bp: Number(form.diastolic_bp),
-        bmi: Number(form.bmi),
-        cholesterol: Number(form.cholesterol),
-        glucose: Number(form.glucose),
-        smoking: Number(form.smoking),
-        diabetes: Number(form.diabetes),
+        user_id:        user.id,
+        age:            Number(form.age),
+        heart_rate:     Number(form.heart_rate),
+        systolic_bp:    Number(form.systolic_bp),
+        diastolic_bp:   Number(form.diastolic_bp),
+        bmi:            Number(form.bmi),
+        cholesterol:    Number(form.cholesterol),
+        glucose:        Number(form.glucose),
+        smoking:        Number(form.smoking),
+        diabetes:       Number(form.diabetes),
         family_history: Number(form.family_history),
-        risk_label: data.prediction.risk_label,
-        probability: data.prediction.probability,
-        health_score: data.digital_twin.health_score
+        risk_label:     data.prediction.risk_label,
+        probability:    data.prediction.probability,
+        health_score:   data.digital_twin.health_score
       })
       setSaved(true)
     } catch(err) {
@@ -75,6 +104,9 @@ export default function NewScan({ user }) {
     <div className="page">
       <h1 className="page-title">New Health Scan</h1>
       <p className="page-sub">Enter your vitals to generate your Digital Twin</p>
+
+      {/* Presage panel — full width above the grid */}
+      <PresagePanel user={user} onVitalsReceived={handlePresageReceived} />
 
       <div className="scan-grid">
         {/* Left: Form */}
@@ -130,7 +162,7 @@ export default function NewScan({ user }) {
                 <input className="field-input" name="glucose" type="number" placeholder="90" min="50" max="400" value={form.glucose} onChange={handleChange} required/>
               </div>
               <div className="field">
-                <label className="field-label">BMI Category</label>
+                <label className="field-label">Smoking</label>
                 <select className="field-input" name="smoking" value={form.smoking} onChange={handleChange}>
                   <option value="0">Non-Smoker</option>
                   <option value="1">Smoker</option>
@@ -180,7 +212,6 @@ export default function NewScan({ user }) {
         </div>
       </div>
 
-      {/* Gemini Chat — shows after scan */}
       {result && <GeminiChat result={result} form={form}/>}
     </div>
   )

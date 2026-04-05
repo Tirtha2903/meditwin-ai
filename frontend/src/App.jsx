@@ -7,6 +7,7 @@ import NewScan from './pages/NewScan'
 import History from './pages/History'
 import Navbar from './components/Navbar'
 import SuperPlane from './pages/SuperPlane'
+import Landing from './pages/Landing'
 import './index.css'
 
 export default function App() {
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="/history" element={user ? <History user={user} /> : <Navigate to="/login" />} />
         <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
         <Route path="/superplane" element={user ? <SuperPlane user={user} /> : <Navigate to="/login" />} />
+        <Route path="/" element={<Landing />} />
       </Routes>
     </div>
   )
