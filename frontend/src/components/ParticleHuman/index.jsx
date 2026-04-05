@@ -109,9 +109,10 @@ export default function ParticleHuman({
       vertexShader: volumetricVertexShader,
       fragmentShader: volumetricFragmentShader,
       transparent: true,
-      depthWrite: false, // Don't write depth, prevents internal sorting Z-fighting
+      depthWrite: true, // TRUE: Write depth so the outer shell occludes the mouth cavity!
+      depthTest: true,
       blending: THREE.AdditiveBlending,
-      side: THREE.FrontSide // Front faces only
+      side: THREE.FrontSide
     });
     materialRef.current = material;
 
@@ -233,10 +234,10 @@ export default function ParticleHuman({
       stop();
     } else {
       const scoreMsg = localScore <= 30
-        ? \`Critical alert. Your health score is \${localScore}. Immediate medical attention is advised.\`
+        ? `Critical alert. Your health score is ${localScore}. Immediate medical attention is advised.`
         : localScore <= 70
-          ? \`Warning. Your health score is \${localScore}. Please consult your physician soon.\`
-          : \`All systems optimal. Your health score is \${localScore}. Keep up the excellent work.\`;
+          ? `Warning. Your health score is ${localScore}. Please consult your physician soon.`
+          : `All systems optimal. Your health score is ${localScore}. Keep up the excellent work.`;
       speak(scoreMsg);
     }
   }, [isSpeaking, isLoading, localScore, speak, stop]);
@@ -336,8 +337,8 @@ export default function ParticleHuman({
         >
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, opacity: morphDone ? 1 : 0, transition: 'opacity 0.8s ease', paddingLeft: 4 }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.22em', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase' }}>Current Health Score</div>
-            <div style={{ fontSize: '4.8rem', fontWeight: 800, color: cssHex, fontFamily: "'Inter', sans-serif", textShadow: \`0 0 30px \${zoneGlow}, 0 0 60px \${zoneGlow}\`, letterSpacing: '-2px', lineHeight: 0.9 }}>{localScore}</div>
-            <div style={{ marginTop: 4, padding: '4px 16px', borderRadius: 999, background: zoneBg, border: \`1px solid \${cssHex}55\`, fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.18em', color: cssHex, display: 'inline-block' }}>{healthLabel} STATUS</div>
+            <div style={{ fontSize: '4.8rem', fontWeight: 800, color: cssHex, fontFamily: "'Inter', sans-serif", textShadow: `0 0 30px ${zoneGlow}, 0 0 60px ${zoneGlow}`, letterSpacing: '-2px', lineHeight: 0.9 }}>{localScore}</div>
+            <div style={{ marginTop: 4, padding: '4px 16px', borderRadius: 999, background: zoneBg, border: `1px solid ${cssHex}55`, fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.18em', color: cssHex, display: 'inline-block' }}>{healthLabel} STATUS</div>
           </div>
 
           <div style={{
@@ -348,11 +349,11 @@ export default function ParticleHuman({
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: "'Inter', sans-serif" }}>Health Score Simulator</span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: cssHex, fontFamily: "'Inter', sans-serif", textShadow: \`0 0 12px \${zoneGlow}\` }}>{localScore} / 100</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: cssHex, fontFamily: "'Inter', sans-serif", textShadow: `0 0 12px ${zoneGlow}` }}>{localScore} / 100</span>
               </div>
               <div style={{ position: 'relative', height: 6, borderRadius: 3 }}>
                 <div style={{ position: 'absolute', inset: 0, borderRadius: 3, background: 'rgba(255,255,255,0.08)' }} />
-                <div style={{ position: 'absolute', inset: \`0 \${100 - localScore}% 0 0\`, borderRadius: 3, background: \`linear-gradient(90deg, #ff1a40, \${cssHex})\`, boxShadow: \`0 0 8px \${zoneGlow}\`, transition: 'background 0.4s ease' }} />
+                <div style={{ position: 'absolute', inset: `0 ${100 - localScore}% 0 0`, borderRadius: 3, background: `linear-gradient(90deg, #ff1a40, ${cssHex})`, boxShadow: `0 0 8px ${zoneGlow}`, transition: 'background 0.4s ease' }} />
                 <input id="health-score-slider" type="range" min={0} max={100} step={1} value={localScore} onChange={handleSlider} aria-label="Health score slider" style={{ position: 'absolute', inset: 0, width: '100%', opacity: 0, cursor: 'pointer', height: '100%', margin: 0, zIndex: 2 }} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 2 }}>
@@ -369,10 +370,10 @@ export default function ParticleHuman({
               aria-label={isSpeaking ? 'Stop AI voice' : 'Toggle AI voice'}
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '12px 20px', borderRadius: 12,
-                border: \`1px solid \${isSpeaking ? cssHex + '80' : 'rgba(255,255,255,0.1)'}\`, background: isSpeaking ? zoneBg : 'rgba(255,255,255,0.05)',
+                border: `1px solid ${isSpeaking ? cssHex + '80' : 'rgba(255,255,255,0.1)'}`, background: isSpeaking ? zoneBg : 'rgba(255,255,255,0.05)',
                 cursor: isLoading ? 'wait' : 'pointer', color: isSpeaking ? cssHex : 'rgba(255,255,255,0.75)', fontSize: '0.80rem', fontWeight: 600,
                 fontFamily: "'Inter', sans-serif", letterSpacing: '0.06em', transition: 'all 0.3s ease',
-                boxShadow: isSpeaking ? \`0 0 20px \${zoneGlow}40, inset 0 0 12px \${zoneGlow}10\` : 'none', outline: 'none',
+                boxShadow: isSpeaking ? `0 0 20px ${zoneGlow}40, inset 0 0 12px ${zoneGlow}10` : 'none', outline: 'none',
               }}
             >
               <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: isSpeaking ? zoneGlow : 'rgba(255,255,255,0.08)', transition: 'background 0.3s ease', animation: isSpeaking ? 'voicePulse 1.2s ease-in-out infinite' : 'none', fontSize: '0.9rem' }}>
@@ -388,15 +389,15 @@ export default function ParticleHuman({
       {!showUI && isSpeaking && (
         <div
           aria-live="polite"
-          style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)', borderRadius: 999, padding: '6px 16px', fontSize: '12px', color: '#00f5a0', letterSpacing: '0.05em', border: \`1px solid rgba(0,245,160,0.25)\` }}
+          style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)', borderRadius: 999, padding: '6px 16px', fontSize: '12px', color: '#00f5a0', letterSpacing: '0.05em', border: `1px solid rgba(0,245,160,0.25)` }}
         >
           MediTwin Speaking
         </div>
       )}
-      <style>{\`
+      <style>{`
         @keyframes speakPulse { 0%, 100% { transform: scaleY(0.4); opacity: 0.4; } 50% { transform: scaleY(1.4); opacity: 1.0; } }
-        @keyframes voicePulse { 0% { box-shadow: 0 0 0 0 \${zoneGlow}; } 100% { box-shadow: 0 0 0 10px transparent; } }
-      \`}</style>
+        @keyframes voicePulse { 0% { box-shadow: 0 0 0 0 ${zoneGlow}; } 100% { box-shadow: 0 0 0 10px transparent; } }
+      `}</style>
     </div>
   );
 }
